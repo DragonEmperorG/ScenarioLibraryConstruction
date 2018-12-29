@@ -41,7 +41,7 @@ namespace StanfordNLP.Test
             // Sentiment Analysis
             // Mention Detection        ✔
             // Coreference              ✔
-            //props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, coref");
+            props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, coref, sentiment");
             // set a property for an annotator,
             // TokenizerAnnotator
             // The tokenizer subdivides a text into individual tokens, i.e. words, punctuation marks etc.
@@ -73,7 +73,23 @@ namespace StanfordNLP.Test
             //props.setProperty("ner.language", "chinese");
             //props.setProperty("ner.model", "edu/stanford/nlp/models/ner/chinese.misc.distsim.crf.ser.gz");
             //props.setProperty("ner.applyNumericClassifiers", "true");
+            // Whether or not to use SUTime. SUTime at present only supports English; if not processing English, make sure to set this to false.
+            // Numeric Entity Label
+            // DATE
+            // TIME
+            // DURATION
+            // SET
+            // MONEY
+            // PERCENT
+            // NUMBER
+            // Normalized Named Entity Label
+            // PERSON
+            // LOCATION
+            // ORGANIZATION
+            // MISC 
+            // 可以训练自己的CRF(Conditional Random Field) sequence model（https://nlp.stanford.edu/software/crf-faq.html#a）
             //props.setProperty("ner.useSUTime", "false");
+            //props.setProperty("sutime.markTimeRanges", "true");
 
             // Stanford RegexNER
             // 需要在项目中补充适用于情景推演的RegexNER规则文件（https://nlp.stanford.edu/software/regexner.html）
@@ -82,8 +98,19 @@ namespace StanfordNLP.Test
             //props.setProperty("ner.additional.regexner.mapping", "");
             //props.setProperty("ner.fine.regexner.noDefaultOverwriteLabels", "CITY,COUNTRY,STATE_OR_PROVINCE");
 
-            //props.setProperty("parse.model", "edu/stanford/nlp/models/srparser/chineseSR.ser.gz");
+            // SentimentAnnotator
+            // 似乎某种程度上也支持中文情感解释器
 
+            // ParserAnnotator
+            // The Stanford Parser analyses and annotates the syntactic structure of each sentence in the text. The Stanford Parer is actually not just one parser, but offers phrase structure parses as well as dependency parses.
+            // 在使用ParserAnnotator的时候需要注意指定Parse依赖的Dependencies
+            // Since version 3.5.2 the Stanford Parser and Stanford CoreNLP output grammatical relations in the Universal Dependencies v1 representation by default. (https://nlp.stanford.edu/software/stanford-dependencies.html)
+            // Standard Stanford dependencies (collapsed and propagated)
+            //props.setProperty("parse.model", "edu/stanford/nlp/models/srparser/chineseSR.ser.gz");
+            props.setProperty("parse.originalDependencies", "true");
+
+            // DependencyParseAnnotator
+            // 
             //props.setProperty("depparse.model", "edu/stanford/nlp/models/parser/nndep/UD_Chinese.gz");
             //props.setProperty("depparse.language", "chinese");
 
