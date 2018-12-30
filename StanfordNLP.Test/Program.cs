@@ -106,14 +106,24 @@ namespace StanfordNLP.Test
             // 在使用ParserAnnotator的时候需要注意指定Parse依赖的Dependencies
             // Since version 3.5.2 the Stanford Parser and Stanford CoreNLP output grammatical relations in the Universal Dependencies v1 representation by default. (https://nlp.stanford.edu/software/stanford-dependencies.html)
             // Standard Stanford dependencies (collapsed and propagated)
+            // Universal Dependencies
+
+            // Neural Network Dependency Parser
+            // A dependency parser analyzes the grammatical structure of a sentence, establishing relationships between "head" words and words which modify those heads.(https://nlp.stanford.edu/software/nndep.html)
             //props.setProperty("parse.model", "edu/stanford/nlp/models/srparser/chineseSR.ser.gz");
             props.setProperty("parse.originalDependencies", "true");
 
             // DependencyParseAnnotator
-            // 
+            // Provides a fast syntactic dependency parser
+            // Three dependency-based outputs
+            // Basic, uncollapsed dependencies saved in BasicDependenciesAnnotation
+            // Collapsed dependencies, saved in CollapsedDependenciesAnnotation
+            // Collapsed dependencies with processed coordinations, in CollapsedCCProcessedDependenciesAnnotation
             //props.setProperty("depparse.model", "edu/stanford/nlp/models/parser/nndep/UD_Chinese.gz");
             //props.setProperty("depparse.language", "chinese");
 
+            // CorefAnnotator
+            // The Stanford CorefAnnotator implements pronominal and nominal coreference resolution.
             //props.setProperty("coref.sieves", "ChineseHeadMatch, ExactStringMatch, PreciseConstructs, StrictHeadMatch1, StrictHeadMatch2, StrictHeadMatch3, StrictHeadMatch4, PronounMatch");
             //props.setProperty("coref.input.type", "raw");
             //props.setProperty("coref.postprocessing", "true");
