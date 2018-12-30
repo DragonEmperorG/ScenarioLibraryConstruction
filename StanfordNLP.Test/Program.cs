@@ -41,7 +41,7 @@ namespace StanfordNLP.Test
             // Sentiment Analysis
             // Mention Detection        ✔
             // Coreference              ✔
-            props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, coref, sentiment");
+            props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, coref, sentiment, relation");
             // set a property for an annotator,
             // TokenizerAnnotator
             // The tokenizer subdivides a text into individual tokens, i.e. words, punctuation marks etc.
@@ -63,6 +63,42 @@ namespace StanfordNLP.Test
             // POSTaggerAnnotator
             // The Stanford Part of Speech Tagger, assigns word class labels to each token according to a model and annotation scheme
             // 
+            //   CC  并列连词           Coordinating conjunction
+            //   CD  基数               Cardinal number
+            //   DT  限定词             Determiner
+            //   EX  存在词             Existential there
+            //   FW  外来词             Foreign word
+            //   IN  介词               Preposition or subordinating conjunction
+            //   JJ  形容词             Adjective
+            //  JJR  形容词比较级        Adjective, comparative
+            //  JJS  形容词最高级        Adjective, superlative
+            //   LS  括号内的数量词       List item marker
+            //   MD  情态动词            Modal(can,may,could,might)
+            //   NN  名词               Noun, singular or mass
+            //  NNS  名词复数            Noun, plural
+            //  NNP  专有名词单数        Proper noun, singular
+            // NNPS  专有名词复数        Proper noun, plural
+            //  PDT  前限定词            Predeterminer
+            //  POS  所有格结束词        Possessive ending
+            //  PRP  人称代词            Personal pronoun
+            // PRP$  物主代词            Possessive pronoun
+            //   RB  副词               Adverb
+            //  RBR  副词比较级          Adverb, comparative
+            //  RBS  副词最高级          Adverb, superlative
+            //   RP  助词               Particle
+            //  SYM  符号               Symbol
+            //   TO                     to
+            //   UH  感叹词              Interjection
+            //   VB  动词原形            Verb, base form
+            //  VBD  动词过去式           Verb, past tense
+            //  VBG  动词现在分词         Verb, gerund or present participle
+            //  VBN  动词过去分词         Verb, past participle
+            //  VBP  动词非第三人称       Verb, non­3rd person singular present
+            //  VBZ  动词第三人称单数     Verb, 3rd person singular present
+            //  WDT  Wh限定词            Wh­-determiner
+            //  WP   Wh代词              Wh­pronoun
+            //  WP$  Wh物主代词          Possessive wh-­pronoun
+            //  WRB  Wh副词              Wh -­adverb
             //props.setProperty("pos.model", "edu/stanford/nlp/models/pos-tagger/chinese-distsim/chinese-distsim.tagger");
 
 
@@ -124,6 +160,7 @@ namespace StanfordNLP.Test
 
             // CorefAnnotator
             // The Stanford CorefAnnotator implements pronominal and nominal coreference resolution.
+            // 
             //props.setProperty("coref.sieves", "ChineseHeadMatch, ExactStringMatch, PreciseConstructs, StrictHeadMatch1, StrictHeadMatch2, StrictHeadMatch3, StrictHeadMatch4, PronounMatch");
             //props.setProperty("coref.input.type", "raw");
             //props.setProperty("coref.postprocessing", "true");
@@ -138,6 +175,15 @@ namespace StanfordNLP.Test
             //props.setProperty("coref.print.md.log", "false");
             //props.setProperty("coref.md.type", "RULE");
             //props.setProperty("coref.md.liberalChineseMD", "false");
+
+            // RelationExtractorAnnotator
+            // Stanford relation extractor is a Java implementation to find relations between two entities
+            // Included with Stanford relation extractor is a classifier to predict relations 
+            // Live_In
+            // Located_In
+            // OrgBased_In
+            // Work_For
+            // None
 
             //props.setProperty("kbp.semgrex", "edu/stanford/nlp/models/kbp/chinese/semgrex");
             //props.setProperty("kbp.tokensregex", "edu/stanford/nlp/models/kbp/chinese/tokensregex");
