@@ -1,24 +1,38 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using Console = System.Console;
+using File = System.IO.File;
 using java.util;
 using java.io;
+using edu.stanford.nlp.coref;
 using edu.stanford.nlp.io;
+using edu.stanford.nlp.ling;
 using edu.stanford.nlp.pipeline;
-using edu.stanford.nlp.time;
-using Console = System.Console;
+using edu.stanford.nlp.util;
+using edu.stanford.nlp.coref.data;
 
 namespace StanfordNLP.Test
 {
     class Program
     {
+        static string LoadPrimitiveCorpus(string _path)
+        {
+            var primitiveCorpus = "";
+            primitiveCorpus = File.ReadAllText(_path);
+
+            return primitiveCorpus;
+        }
+
+
         static void Main(string[] args)
         {
             // Path to the folder with models extracted from `stanford-corenlp-3.9.2-models.jar`
             var jarRoot = @"..\..\Models\stanford-chinese-corenlp-2018-10-05-models";
 
             // Text for processing
-            //var text = "Kosgi Santosh sent an email to Stanford University. He didn't get a reply.";
-            var text = "2018年9月10日，山竹继续向西偏南移动，在关岛附近海域掠过。多个气象机构的预测分歧都逐渐收窄，均预测山竹会经过巴士海峡或掠过台湾南部，移入南海北部，对该区构成威胁；山竹在同日上午8时进入香港天文台责任范围，香港天文台评定其为台风；同时，山竹继续受到干空气入侵，并移到风切变较为强的海域，令它发展迟缓，迟迟未能开启风眼，但国家气象中心和香港天文台在晚上8时仍然将其升格为强台风。";
+            var path = @"../../Corpus/AmericanTraderOilSpillAccidentPart.txt";
+            var text = LoadPrimitiveCorpus(path);
 
             // Annotation pipeline configuration
             // set up pipeline properties
@@ -41,7 +55,8 @@ namespace StanfordNLP.Test
             // Sentiment Analysis
             // Mention Detection        ✔
             // Coreference              ✔
-            props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, coref, sentiment, relation");
+            //props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, coref, sentiment, relation");
+            props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, coref");
             // set a property for an annotator,
             // TokenizerAnnotator
             // The tokenizer subdivides a text into individual tokens, i.e. words, punctuation marks etc.
@@ -193,17 +208,60 @@ namespace StanfordNLP.Test
             //props.setProperty("entitylink.wikidict", "edu/stanford/nlp/models/kbp/chinese/wikidict_chinese.tsv.gz");            
             var pipeline = new StanfordCoreNLP(props);
 
+            // CoreNLP’s core package includes two classes: Annotation and Annotator.
             // Annotation
-            var annotation = new Annotation(text);
-            pipeline.annotate(annotation);
+            // are data structures that hold the results of the annotators.Annotations are generally maps.
+            // Annotators
+            // are more like functions, but they operate on Annotations rather than Objects.
+            var document = new Annotation(text);
+            pipeline.annotate(document);
 
             // Result - Pretty Print
             using (var stream = new ByteArrayOutputStream())
             {
-                pipeline.prettyPrint(annotation, new PrintWriter(stream));
+                pipeline.prettyPrint(document, new PrintWriter(stream));
                 Console.WriteLine(stream.toString());
                 stream.close();
             }
+
+            var corefChainAnnotation = new CorefCoreAnnotations.CorefChainAnnotation().getClass();
+            var corefMentionsAnnotation = new CorefCoreAnnotations.CorefMentionsAnnotation().getClass();
+            var namedEntityTagAnnotation = new CoreAnnotations.NamedEntityTagAnnotation().getClass();
+            var partOfSpeechAnnotation = new CoreAnnotations.PartOfSpeechAnnotation().getClass();
+            var sentencesAnnotation = new CoreAnnotations.SentencesAnnotation().getClass();
+            var textAnnotation = new CoreAnnotations.TextAnnotation().getClass();
+            var tokensAnnotation = new CoreAnnotations.TokensAnnotation().getClass();
+
+
+            // these are all the sentences in this document
+            var sentences = document.get(sentencesAnnotation) as ArrayList;
+            var words = new List<string>();
+            var posTags = new List<string>();
+            var nerTags = new List<string>();
+
+            foreach (CoreMap sentence in sentences.toArray())
+            {
+                // traversing the words in the current sentence
+
+                var tokens = sentence.get(tokensAnnotation) as ArrayList;
+                foreach (CoreLabel token in tokens.toArray())
+                {
+                    // this is the text of the token
+                    var word = token.get(textAnnotation) as string;
+                    words.Add(word);
+
+                    // this is the POS tag of the token
+                    var pos = token.get(partOfSpeechAnnotation) as string;
+                    posTags.Add(pos);
+
+                    // this is the this is the NER label of the token
+                    var ne = token.get(namedEntityTagAnnotation) as string;
+                    nerTags.Add(ne);
+                }
+            }
+
+            Console.WriteLine(sentences);
+
 
             Directory.SetCurrentDirectory(curDir);
         }
