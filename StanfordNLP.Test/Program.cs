@@ -24,6 +24,13 @@ namespace StanfordNLP.Test
             return primitiveCorpus;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static java.lang.Class GetAnnotationClass<T>()
+            => ikvm.@internal.ClassLiteral<T>.Value; // = new T().getClass()
 
         static void Main(string[] args)
         {
@@ -93,6 +100,8 @@ namespace StanfordNLP.Test
             //  NNS  名词复数            Noun, plural
             //  NNP  专有名词单数        Proper noun, singular
             // NNPS  专有名词复数        Proper noun, plural
+            //   NP  专有名词               
+            //   NT  词               
             //  PDT  前限定词            Predeterminer
             //  POS  所有格结束词        Possessive ending
             //  PRP  人称代词            Personal pronoun
@@ -217,16 +226,17 @@ namespace StanfordNLP.Test
             pipeline.annotate(document);
 
             // Result - Pretty Print
-            using (var stream = new ByteArrayOutputStream())
-            {
-                pipeline.prettyPrint(document, new PrintWriter(stream));
-                Console.WriteLine(stream.toString());
-                stream.close();
-            }
+            //using (var stream = new ByteArrayOutputStream())
+            //{
+            //    pipeline.prettyPrint(document, new PrintWriter(stream));
+            //    Console.WriteLine(stream.toString());
+            //    stream.close();
+            //}
 
             var corefChainAnnotation = new CorefCoreAnnotations.CorefChainAnnotation().getClass();
             var corefMentionsAnnotation = new CorefCoreAnnotations.CorefMentionsAnnotation().getClass();
             var namedEntityTagAnnotation = new CoreAnnotations.NamedEntityTagAnnotation().getClass();
+            var normalizedNamedEntityTagAnnotation = GetAnnotationClass<CoreAnnotations.NormalizedNamedEntityTagAnnotation>();
             var partOfSpeechAnnotation = new CoreAnnotations.PartOfSpeechAnnotation().getClass();
             var sentencesAnnotation = new CoreAnnotations.SentencesAnnotation().getClass();
             var textAnnotation = new CoreAnnotations.TextAnnotation().getClass();
@@ -235,13 +245,41 @@ namespace StanfordNLP.Test
 
             // these are all the sentences in this document
             var sentences = document.get(sentencesAnnotation) as ArrayList;
+            var documentSplitByTimeStamp = new List<string>();
             var words = new List<string>();
             var posTags = new List<string>();
             var nerTags = new List<string>();
+            var nnerTags = new List<string>();
+
+            var hasDateMention = false;
+            var partDocument = "";
 
             foreach (CoreMap sentence in sentences.toArray())
             {
+                var sentenceText = sentence.get(textAnnotation) as string;
+
                 // traversing the words in the current sentence
+                var corefMentions = sentence.get(corefMentionsAnnotation) as ArrayList;
+                foreach (Mention m in corefMentions)
+                {
+                    if (m.nerString == "DATE")
+                    {
+                        hasDateMention = true;
+                        break;
+                    }
+                    //Console.WriteLine("\t" + m);
+                }
+
+                if (hasDateMention)
+                {
+                    documentSplitByTimeStamp.Add(partDocument);
+                    hasDateMention = false;
+                    partDocument = sentenceText;
+                }
+                else
+                {
+                    partDocument += sentenceText;
+                }
 
                 var tokens = sentence.get(tokensAnnotation) as ArrayList;
                 foreach (CoreLabel token in tokens.toArray())
@@ -255,12 +293,17 @@ namespace StanfordNLP.Test
                     posTags.Add(pos);
 
                     // this is the this is the NER label of the token
-                    var ne = token.get(namedEntityTagAnnotation) as string;
-                    nerTags.Add(ne);
+                    var ner = token.get(namedEntityTagAnnotation) as string;
+                    nerTags.Add(ner);
+
+                    var nner = token.get(normalizedNamedEntityTagAnnotation) as string;
+                    nnerTags.Add(nner);
                 }
             }
 
-            Console.WriteLine(sentences);
+            documentSplitByTimeStamp.Add(partDocument);
+
+            Console.WriteLine(documentSplitByTimeStamp);
 
 
             Directory.SetCurrentDirectory(curDir);
