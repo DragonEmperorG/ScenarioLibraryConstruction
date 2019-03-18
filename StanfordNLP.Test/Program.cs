@@ -6,11 +6,13 @@ using File = System.IO.File;
 using java.util;
 using java.io;
 using edu.stanford.nlp.coref;
+using edu.stanford.nlp.coref.data;
+using edu.stanford.nlp.ie.util;
 using edu.stanford.nlp.io;
 using edu.stanford.nlp.ling;
+using edu.stanford.nlp.naturalli;
 using edu.stanford.nlp.pipeline;
 using edu.stanford.nlp.util;
-using edu.stanford.nlp.coref.data;
 
 namespace StanfordNLP.Test
 {
@@ -38,7 +40,8 @@ namespace StanfordNLP.Test
             var jarRoot = @"..\..\Models\stanford-chinese-corenlp-2018-10-05-models";
 
             // Text for processing
-            var path = @"../../Corpus/AmericanTraderOilSpillAccidentPart.txt";
+            var path = @"../../Corpus/AmericanTraderOilSpillAccident.txt";
+            //var path = @"../../Corpus/AmericanTraderOilSpillAccidentPart.txt";
             var text = LoadPrimitiveCorpus(path);
 
             // Annotation pipeline configuration
@@ -63,7 +66,7 @@ namespace StanfordNLP.Test
             // Mention Detection        ✔
             // Coreference              ✔
             //props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, coref, sentiment, relation");
-            props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, coref");
+            props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, coref, depparse, natlog, openie");
             // set a property for an annotator,
             // TokenizerAnnotator
             // The tokenizer subdivides a text into individual tokens, i.e. words, punctuation marks etc.
@@ -238,6 +241,7 @@ namespace StanfordNLP.Test
             var namedEntityTagAnnotation = new CoreAnnotations.NamedEntityTagAnnotation().getClass();
             var normalizedNamedEntityTagAnnotation = GetAnnotationClass<CoreAnnotations.NormalizedNamedEntityTagAnnotation>();
             var partOfSpeechAnnotation = new CoreAnnotations.PartOfSpeechAnnotation().getClass();
+            var relationTriplesAnnotation = new NaturalLogicAnnotations.RelationTriplesAnnotation().getClass();
             var sentencesAnnotation = new CoreAnnotations.SentencesAnnotation().getClass();
             var textAnnotation = new CoreAnnotations.TextAnnotation().getClass();
             var tokensAnnotation = new CoreAnnotations.TokensAnnotation().getClass();
@@ -253,10 +257,22 @@ namespace StanfordNLP.Test
 
             var hasDateMention = false;
             var partDocument = "";
+            var sentenceIndex = 1;
 
             foreach (CoreMap sentence in sentences.toArray())
             {
+                Console.WriteLine("Sentence " + sentenceIndex);                
+
                 var sentenceText = sentence.get(textAnnotation) as string;
+                Console.WriteLine(sentenceText);
+
+                // Get the OpenIE triples for the sentence
+                var triples = sentence.get(relationTriplesAnnotation) as ArrayList;
+                // Analyze the triples
+                foreach (RelationTriple triple in triples)
+                {
+                    Console.WriteLine(triple.confidence + "\t" + triple.subjectLemmaGloss() + "\t" + triple.relationLemmaGloss() + "\t" + triple.objectLemmaGloss());
+                }                
 
                 // traversing the words in the current sentence
                 var corefMentions = sentence.get(corefMentionsAnnotation) as ArrayList;
@@ -299,6 +315,12 @@ namespace StanfordNLP.Test
                     var nner = token.get(normalizedNamedEntityTagAnnotation) as string;
                     nnerTags.Add(nner);
                 }
+
+                //
+                sentenceIndex += 1;
+
+                Console.WriteLine();
+
             }
 
             documentSplitByTimeStamp.Add(partDocument);
